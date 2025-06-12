@@ -1,0 +1,197 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recibo de Barbería</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            margin: 0;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            font-weight: bold;
+        }
+        select, input[type="text"], input[type="number"], input[type="date"] {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .btn:hover {
+            background-color: #45a049;
+        }
+        .receipt {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #e1f7d5;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+        }
+        .receipt h2 {
+            margin-top: 0;
+        }
+        .receipt .detail {
+            margin-bottom: 10px;
+        }
+        .receipt .total {
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        .print-btn {
+            background-color: #2196F3;
+            margin-top: 20px;
+        }
+        .print-btn:hover {
+            background-color: #1976D2;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Generar Recibo de Barbería</h1>
+        <p>Completa los detalles a continuación para generar un recibo.</p>
+    </div>
+
+    <form id="receiptForm">
+        <div class="form-group">
+            <label for="barbershopName">Nombre de la Barbería</label>
+            <input type="text" id="barbershopName" name="barbershopName" value="Barbería Estilo" required>
+        </div>
+
+        <div class="form-group">
+            <label for="serviceDate">Fecha del Servicio</label>
+            <input type="date" id="serviceDate" name="serviceDate" required>
+        </div>
+
+        <div class="form-group">
+            <label for="serviceDescription">Descripción del Servicio</label>
+            <select id="serviceDescription" name="serviceDescription" required>
+                <option value="Corte de Cabello">Corte de Cabello</option>
+                <option value="Afeitado">Afeitado</option>
+                <option value="Corte y Afeitado">Corte y Afeitado</option>
+                <option value="Arreglo de Barba">Arreglo de Barba</option>
+                <option value="Otros">Otros</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="servicePrice">Precio del Servicio</label>
+            <input type="number" id="servicePrice" name="servicePrice" placeholder="Precio en $USD" required>
+        </div>
+
+        <div class="form-group">
+            <label for="paymentMethod">Método de Pago</label>
+            <select id="paymentMethod" name="paymentMethod" required>
+                <option value="Efectivo">Efectivo</option>
+                <option value="Tarjeta de Crédito">Tarjeta de Crédito</option>
+                <option value="Transferencia">Transferencia</option>
+                <option value="Otros">Otros</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="clientName">Nombre del Cliente (opcional)</label>
+            <input type="text" id="clientName" name="clientName">
+        </div>
+
+        <button type="button" class="btn" onclick="generateReceipt()">Generar Recibo</button>
+    </form>
+
+    <div id="receipt" class="receipt" style="display: none;">
+        <h2>Recibo de Barbería</h2>
+        <div class="detail"><strong>Factura Nº:</strong> <span id="receiptInvoiceNumber"></span></div>
+        <div class="detail"><strong>Nombre de la Barbería:</strong> <span id="receiptBarbershopName"></span></div>
+        <div class="detail"><strong>Fecha del Servicio:</strong> <span id="receiptDate"></span></div>
+        <div class="detail"><strong>Descripción del Servicio:</strong> <span id="receiptService"></span></div>
+        <div class="detail"><strong>Precio del Servicio:</strong> $<span id="receiptPrice"></span></div>
+        <div class="detail"><strong>Método de Pago:</strong> <span id="receiptPaymentMethod"></span></div>
+        <div class="detail"><strong>Cliente:</strong> <span id="receiptClientName"></span></div>
+        <div class="total">Total a Pagar: $<span id="receiptTotal"></span></div>
+        <button class="btn print-btn" onclick="printReceipt()">Imprimir Recibo</button>
+    </div>
+</div>
+
+<script>
+    function generateInvoiceNumber() {
+        // Genera un número de factura único basado en la fecha y una parte aleatoria.
+        const date = new Date();
+        const year = date.getFullYear();
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const day = date.getDate().toString().padStart(2, '0');
+        const randomPart = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+        
+        // Número de factura: Año-Mes-Día-XXXX
+        return `${year}-${month}-${day}-${randomPart}`;
+    }
+
+    function generateReceipt() {
+        const barbershopName = document.getElementById("barbershopName").value;
+        const serviceDate = document.getElementById("serviceDate").value;
+        const serviceDescription = document.getElementById("serviceDescription").value;
+        const servicePrice = document.getElementById("servicePrice").value;
+        const paymentMethod = document.getElementById("paymentMethod").value;
+        const clientName = document.getElementById("clientName").value || "No especificado";
+        
+        const invoiceNumber = generateInvoiceNumber(); // Genera el número de factura
+
+        // Asignar valores al recibo
+        document.getElementById("receiptInvoiceNumber").innerText = invoiceNumber;
+        document.getElementById("receiptBarbershopName").innerText = barbershopName;
+        document.getElementById("receiptDate").innerText = serviceDate;
+        document.getElementById("receiptService").innerText = serviceDescription;
+        document.getElementById("receiptPrice").innerText = servicePrice;
+        document.getElementById("receiptPaymentMethod").innerText = paymentMethod;
+        document.getElementById("receiptClientName").innerText = clientName;
+        document.getElementById("receiptTotal").innerText = servicePrice;
+
+        document.getElementById("receipt").style.display = "block";
+    }
+
+    function printReceipt() {
+        const receiptContent = document.getElementById("receipt").innerHTML;
+        const originalContent = document.body.innerHTML;
+
+        document.body.innerHTML = receiptContent;
+        window.print();
+        document.body.innerHTML = originalContent;  // Restablecer el contenido original
+    }
+</script>
+
+</body>
+</html>
